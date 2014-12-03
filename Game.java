@@ -15,50 +15,64 @@ public class Game{
         Tile[][] result = new Tile[g.length][g[0].length];
         for (int i = 0 ; i < g.length ; i++){
             for (int j = 0 ; j < g[0].length ; j++) {
-                result[i][j] = g[i][j];
+                result[i][j] = new Tile(g[i][j].getStatus());
             }
         }
 
         return result;
     }
-    
-    private boolean noZero() {
-        boolean result = false;
-        for (int i = 0 ; i < grid.length ; i++) {
-            result = result || rowContainsZero(i);
-        }
+
+    private boolean deepEquals(Tile[][] g, Tile[][] g2){
+        boolean eq = true;
+
+        return Arrays.deepToString(g).equals(Arrays.deepToString(g2));
+        /*for(int i = 0; i < g.length; i++){
+            for(int j = 0; j< g[i].length; j++){
+                H.o("hh: " + g[i][j].getStatus() );
+                H.o("gg: " + g2[i][j].getStatus());
+                H.o(g[i][j].getStatus() == g2[i][j].getStatus());
+                eq = eq && (g[i][j].getStatus() == g2[i][j].getStatus());
+            }
+        }*/
+
+        //return eq;
     }
+    
+ 
 
     private boolean validMoveExists() {
         Tile[][] temp = deepCopy(grid);
-        H.o(Arrays.deepToString(deepCopy(grid)));
-        H.o(Arrays.deepEquals(temp,grid));
         moveLeft();
-        if  (!Arrays.deepEquals(temp, grid)){
+
+        if  (!deepEquals(temp, grid)){
             grid = deepCopy(temp);
             return true;
         }
     
+         
         moveRight();
-        if (!Arrays.deepEquals(temp, grid)) {
+        if (!deepEquals(temp, grid)) {
             grid = deepCopy(temp);
             return true;
         }
-
+         
         moveUp();
-        if (!Arrays.deepEquals(temp, grid)) {
+        if (!deepEquals(temp, grid)) {
             grid = deepCopy(temp);
             return true;
         }
-
+        
         moveDown();
-        if (!Arrays.deepEquals(temp, grid)) {
+        if (!deepEquals(temp, grid)) {
             grid = deepCopy(temp);
             return true;
         }
+       
 
         return false;
     }
+
+ 
 
 	private void init(){
 		grid = new Tile[4][4];
@@ -69,8 +83,10 @@ public class Game{
 		
 		
         do {
+         Tile[][] temp = deepCopy(grid);
 
         String cmd = IOUtil.readString();
+
         if(cmd.equals("l")){
 			moveLeft();
 		}if(cmd.equals("r")){
@@ -80,8 +96,10 @@ public class Game{
         }if(cmd.equals("d")){
             moveDown();
         }
-        randomFill();
-		H.o(this);
+        if(!deepEquals(grid,temp)){
+            randomFill();
+		}
+        H.o(this);
 		} while (validMoveExists());
 	}
     
