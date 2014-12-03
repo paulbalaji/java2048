@@ -11,14 +11,67 @@ public class Game{
 
 	}
 
+    private Tile[][] deepCopy(Tile[][] g) {
+        Tile[][] result = new Tile[g.length][g[0].length];
+        for (int i = 0 ; i < g.length ; i++){
+            for (int j = 0 ; j < g[0].length ; j++) {
+                result[i][j] = g[i][j];
+            }
+        }
+
+        return result;
+    }
+    
+    private boolean noZero() {
+        boolean result = false;
+        for (int i = 0 ; i < grid.length ; i++) {
+            result = result || rowContainsZero(i);
+        }
+    }
+
+    private boolean validMoveExists() {
+        Tile[][] temp = deepCopy(grid);
+        H.o(Arrays.deepToString(deepCopy(grid)));
+        H.o(Arrays.deepEquals(temp,grid));
+        moveLeft();
+        if  (!Arrays.deepEquals(temp, grid)){
+            grid = deepCopy(temp);
+            return true;
+        }
+    
+        moveRight();
+        if (!Arrays.deepEquals(temp, grid)) {
+            grid = deepCopy(temp);
+            return true;
+        }
+
+        moveUp();
+        if (!Arrays.deepEquals(temp, grid)) {
+            grid = deepCopy(temp);
+            return true;
+        }
+
+        moveDown();
+        if (!Arrays.deepEquals(temp, grid)) {
+            grid = deepCopy(temp);
+            return true;
+        }
+
+        return false;
+    }
+
 	private void init(){
 		grid = new Tile[4][4];
 		setupTiles();
 
 		H.o(this);
 
-		String cmd = IOUtil.readString();
-		if(cmd.equals("l")){
+		
+		
+        do {
+
+        String cmd = IOUtil.readString();
+        if(cmd.equals("l")){
 			moveLeft();
 		}if(cmd.equals("r")){
             moveRight();
@@ -27,37 +80,97 @@ public class Game{
         }if(cmd.equals("d")){
             moveDown();
         }
-
+        randomFill();
 		H.o(this);
-		
+		} while (validMoveExists());
 	}
+    
+    private void randomFill(){
+        int randRow = (int) Math.random()*grid.length;
+       
+       while(!rowContainsZero(randRow)){
+             int direction = (Math.random() > 0.5) ? 1 : -1;
+            if(randRow == 0 && direction == -1){
+                randRow = grid.length -1;
+
+            }else if(randRow == grid.length -1 && direction == 1){
+                randRow = 0;
+            }else{
+              randRow += direction;
+
+            }   
+        
+        }
+     
+        randomFillRowZero(randRow);
+    }
+
+    private boolean rowContainsZero(int i){
+        
+
+        for(Tile tile : grid[i]){
+            if(tile.getStatus() == 0){
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    //randomly selects a 0 from the given row and inserts a 2 or a 4 (randomly)
+    private void randomFillRowZero(int randRow){
+        int[] zeroIndexes = new int[grid[randRow].length];
+        Arrays.fill(zeroIndexes,-1);
+        int k = 0;
+        for(int j = 0; j< grid[randRow].length;j++){
+            if(grid[randRow][j].getStatus() == 0){
+                zeroIndexes[k] = j;
+                k++;
+            }
+        }
+
+       
+        int randIndex;
+        do{
+             randIndex = (int) (Math.random() * zeroIndexes.length);
+        }while(zeroIndexes[randIndex] == -1);
+        
+        H.o("rand row: " + randRow + " \n randIndex: " + randIndex);
+        H.o(zeroIndexes.length);
+        grid[randRow][zeroIndexes[randIndex]].set(chooseNumRand(2, 4, 0.7));
+    }
+
+    public int chooseNumRand(int x, int y, double prob){
+        return (Math.random() < prob) ? x : y;
+    }
 
 	private void setupTiles(){
 		for(int i = 0; i< grid.length; i++){
 			for(int j = 0; j< grid[i].length;j++){
-				grid[i][j] = new Tile((Math.random()<0.5 ? 2 : 4));
+				grid[i][j] = new Tile(0);
 			}
 		}
-
+        grid[0][1].set(2);
+        grid[0][3].set(2);
 		int rand1 =  (int) Math.ceil(Math.random()*grid.length) - 1;
 		int rand2 =  (int) Math.ceil(Math.random()*grid[0].length) -1;
-		grid[rand1][rand2].set(2);
+		//grid[rand1][rand2].set(2);
 
 		int rand3 =  (int) Math.ceil(Math.random()*grid.length) -1;
 		int rand4 =  (int) Math.ceil(Math.random()*grid[0].length) -1;
-		grid[rand3][rand4].set(2);
+		//grid[rand3][rand4].set(2);
 
 		int rand5 =  (int) Math.ceil(Math.random()*grid.length) -1;
 		int rand6 =  (int) Math.ceil(Math.random()*grid[0].length) -1;
-		grid[rand5][rand6].set(2);
+		//grid[rand5][rand6].set(2);
 
 		int rand7 =  (int) Math.ceil(Math.random()*grid.length) -1;
 		int rand8 =  (int) Math.ceil(Math.random()*grid[0].length) -1;
-		grid[rand7][rand8].set(2);
+		//grid[rand7][rand8].set(2);
 
 		int rand9 =  (int) Math.ceil(Math.random()*grid.length) -1;
 		int rand10 =  (int) Math.ceil(Math.random()*grid[0].length) -1;
-		grid[rand9][rand10].set(2);
+		//grid[rand9][rand10].set(2);
 	}
 
 	//-1 = invalid lookup
@@ -122,7 +235,11 @@ public class Game{
     	Tile[] theRow = grid[i];
 
     	boolean breakCondition = false;
-
+        
+        for(int k = 0; k< grid[i].length;k++){
+            stripRowSpacesLeft(i);
+        }
+    
     	while(!breakCondition){
     		for(int j = 0; j< theRow.length;j++){
     			Tile tile = theRow[j];
@@ -151,6 +268,7 @@ public class Game{
     public void moveRowRight(int i){
          List<Tile> l = Arrays.asList(grid[i]);
          Collections.reverse(l);
+         
          grid[i] = (Tile[]) l.toArray();
          moveRowLeft(i);
          l = Arrays.asList(grid[i]);
@@ -161,6 +279,8 @@ public class Game{
     }
 
     public void stripRowSpacesLeft(int i){
+
+        
     	for(int j = 0; j < grid[i].length-1; j++){
     		Tile tile = grid[i][j];
     		int theStatus = tile.getStatus();
@@ -169,6 +289,7 @@ public class Game{
     			grid[i][j+1].set(0);
 
     		}
+
     	}
     }
 
