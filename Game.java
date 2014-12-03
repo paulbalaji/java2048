@@ -1,3 +1,7 @@
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class Game{
 
 	private Tile[][] grid;
@@ -16,7 +20,13 @@ public class Game{
 		String cmd = IOUtil.readString();
 		if(cmd.equals("l")){
 			moveLeft();
-		}
+		}if(cmd.equals("r")){
+            moveRight();
+        }if(cmd.equals("u")){
+            moveUp();
+        }if(cmd.equals("d")){
+            moveDown();
+        }
 
 		H.o(this);
 		
@@ -59,6 +69,21 @@ public class Game{
     	}
         
     }
+
+    private void swap(int i, int j){
+        int temp = grid[i][j].getStatus();
+        grid[i][j].set(grid[j][i].getStatus());
+        grid[j][i].set(temp);
+    }
+
+    private void transpose(){
+        for(int i = 0; i < grid.length; i++){
+            for(int j = i; j< grid[i].length; j++){
+                swap(i, j);
+            }
+        }
+    }
+
     private int leftOf(int i,int  j){
     	if(j>=1){
     		return grid[i][j-1].getStatus();
@@ -70,17 +95,30 @@ public class Game{
 
 	private void moveLeft(){	
         for(int i = 0; i < grid.length;i++){
-            	grid[i] = moveRowLeft(i);
+            	moveRowLeft(i);
         }
 	}	
 
     private void moveRight(){
         for(int i = 0; i < grid.length; i++){
-            grid[i] = moveRowRight(i);
+            moveRowRight(i);
         }
     }
+
+    private void moveUp(){
+        transpose();
+        moveLeft();
+        transpose();
+    }
+
+    private void moveDown(){
+        transpose();
+        moveRight();
+        transpose();
+    }
+
   
-    public Tile[] moveRowLeft(int i){
+    public void moveRowLeft(int i){
     	Tile[] theRow = grid[i];
 
     	boolean breakCondition = false;
@@ -106,14 +144,20 @@ public class Game{
     		breakCondition = checkLeftRowBreakCondition(i);
 
     	}
-        
-        return theRow;
+       
 
     }
 
     public void moveRowRight(int i){
-        //Tile[] theRow = ArrayUtils.reverse(grid[i]);
-       // moveRowLeft();
+         List<Tile> l = Arrays.asList(grid[i]);
+         Collections.reverse(l);
+         grid[i] = (Tile[]) l.toArray();
+         moveRowLeft(i);
+         l = Arrays.asList(grid[i]);
+         Collections.reverse(l);
+         grid[i] = (Tile[]) l.toArray();
+
+         
     }
 
     public void stripRowSpacesLeft(int i){
