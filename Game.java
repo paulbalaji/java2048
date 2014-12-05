@@ -87,13 +87,13 @@ public class Game{
 
         String cmd = IOUtil.readString();
 
-        if(cmd.equals("l")){
+        if(cmd.equals("a")){
 			moveLeft();
-		}if(cmd.equals("r")){
+		}if(cmd.equals("d")){
             moveRight();
-        }if(cmd.equals("u")){
+        }if(cmd.equals("w")){
             moveUp();
-        }if(cmd.equals("d")){
+        }if(cmd.equals("s")){
             moveDown();
         }
         if(!deepEquals(grid,temp)){

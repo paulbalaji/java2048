@@ -3,6 +3,8 @@ public class Tile{
 
 	private int status = 0;
 
+	public Tile(){}
+
 	public Tile(int status){
 		this.status = status;
 	}
@@ -12,7 +14,7 @@ public class Tile{
 	}
 
 	public void dble(){
-		status *=2;
+		status *= 2;
 	}
 
 	public int getStatus(){
@@ -22,6 +24,8 @@ public class Tile{
 	public String toString(){
 		return "[ " + Integer.toString(status) + " ]";
 	}
+
+
 
 
 
